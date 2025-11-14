@@ -29,6 +29,8 @@ const gameMode = document.getElementById('gameMode');
 const resultMode = document.getElementById('resultMode');
 const optionsList = document.getElementById('optionsList');
 const addOptionBtn = document.getElementById('addOptionBtn');
+const saveLocalBtn = document.getElementById('saveLocalBtn');
+const loadLocalBtn = document.getElementById('loadLocalBtn');
 const startGameBtn = document.getElementById('startGameBtn');
 const shareGameBtn = document.getElementById('shareGameBtn');
 const backToEditorBtn = document.getElementById('backToEditorBtn');
@@ -39,6 +41,7 @@ const shareModal = document.getElementById('shareModal');
 const shareLink = document.getElementById('shareLink');
 const copyLinkBtn = document.getElementById('copyLinkBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
+const generateQRBtn = document.getElementById('generateQRBtn');
 
 // 初始化
 function init() {
@@ -88,6 +91,9 @@ function renderEditor() {
 
         imagePreview.addEventListener('click', () => fileInput.click());
 
+        // 添加拖放功能
+        setupDragAndDrop(imagePreview, index);
+
         const textInput = document.createElement('input');
         textInput.type = 'text';
         textInput.className = 'option-text-input';
@@ -108,6 +114,39 @@ function renderEditor() {
         optionItem.appendChild(removeBtn);
 
         optionsList.appendChild(optionItem);
+    });
+}
+
+// 設置拖放功能
+function setupDragAndDrop(element, index) {
+    element.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        element.style.borderColor = '#667eea';
+        element.style.backgroundColor = '#f0f7ff';
+    });
+
+    element.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        element.style.borderColor = '';
+        element.style.backgroundColor = '';
+    });
+
+    element.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        element.style.borderColor = '';
+        element.style.backgroundColor = '';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            try {
+                const compressedImage = await compressImage(files[0]);
+                appState.options[index].image = compressedImage;
+                renderEditor();
+            } catch (error) {
+                console.error('圖片處理失敗:', error);
+                alert('圖片上傳失敗，請嘗試其他圖片');
+            }
+        }
     });
 }
 
@@ -419,14 +458,93 @@ function copyLink() {
     }, 2000);
 }
 
+// 生成 QR 碼
+let qrcodeInstance = null;
+function generateQRCode() {
+    const url = shareLink.value;
+    const qrcodeContainer = document.getElementById('qrcodeContainer');
+    const qrcodeElement = document.getElementById('qrcode');
+
+    // 檢查 URL 長度
+    if (url.length > 2000) {
+        alert('URL 過長，建議使用「僅文字」模式後再生成 QR 碼');
+        return;
+    }
+
+    // 清除舊的 QR 碼
+    qrcodeElement.innerHTML = '';
+
+    // 生成新的 QR 碼
+    try {
+        qrcodeInstance = new QRCode(qrcodeElement, {
+            text: url,
+            width: 200,
+            height: 200,
+            colorDark: '#667eea',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+        qrcodeContainer.classList.remove('hidden');
+        console.log('QR 碼已生成');
+    } catch (error) {
+        console.error('生成 QR 碼失敗:', error);
+        alert('生成 QR 碼失敗');
+    }
+}
+
+// 保存到本地存儲
+function saveToLocal() {
+    try {
+        localStorage.setItem('either-one-game-draft', JSON.stringify(appState.options));
+        const saveBtn = saveLocalBtn;
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = '✓ 已保存';
+        saveBtn.style.background = '#28a745';
+        setTimeout(() => {
+            saveBtn.textContent = originalText;
+            saveBtn.style.background = '';
+        }, 2000);
+        console.log('草稿已保存到本地');
+    } catch (error) {
+        console.error('保存失敗:', error);
+        alert('保存失敗，可能是數據太大或瀏覽器不支援');
+    }
+}
+
+// 從本地存儲載入
+function loadFromLocal() {
+    try {
+        const saved = localStorage.getItem('either-one-game-draft');
+        if (saved) {
+            const confirmed = confirm('確定要載入草稿嗎？這將覆蓋當前的內容。');
+            if (confirmed) {
+                appState.options = JSON.parse(saved);
+                renderEditor();
+                alert('草稿載入成功！');
+                console.log('已載入本地草稿');
+            }
+        } else {
+            alert('沒有找到已保存的草稿');
+        }
+    } catch (error) {
+        console.error('載入失敗:', error);
+        alert('載入失敗');
+    }
+}
+
 // 關閉模態框
 function closeModal() {
     shareModal.classList.add('hidden');
+    // 清除 QR 碼
+    const qrcodeContainer = document.getElementById('qrcodeContainer');
+    qrcodeContainer.classList.add('hidden');
 }
 
 // 附加事件監聽器
 function attachEventListeners() {
     addOptionBtn.addEventListener('click', addOption);
+    saveLocalBtn.addEventListener('click', saveToLocal);
+    loadLocalBtn.addEventListener('click', loadFromLocal);
     startGameBtn.addEventListener('click', startGame);
     shareGameBtn.addEventListener('click', shareGame);
     backToEditorBtn.addEventListener('click', () => switchMode('editor'));
@@ -434,14 +552,17 @@ function attachEventListeners() {
     playAgainBtn.addEventListener('click', startGame);
     backToEditorFromResultBtn.addEventListener('click', () => switchMode('editor'));
     copyLinkBtn.addEventListener('click', copyLink);
+    generateQRBtn.addEventListener('click', generateQRCode);
     closeModalBtn.addEventListener('click', closeModal);
 
     // 監聽分享類型切換
     document.querySelectorAll('input[name="shareType"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            // 當切換分享類型時，重新生成連結
+            // 當切換分享類型時，重新生成連結並清除 QR 碼
             if (!shareModal.classList.contains('hidden')) {
                 generateShareLink();
+                const qrcodeContainer = document.getElementById('qrcodeContainer');
+                qrcodeContainer.classList.add('hidden');
             }
         });
     });
