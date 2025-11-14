@@ -49,11 +49,13 @@ const generateQRBtn = document.getElementById('generateQRBtn');
 function init() {
     // 檢查 URL hash 是否有分享的數據
     const hash = window.location.hash.substring(1); // 移除 # 符號
+    let isSharedGame = false;
 
     if (hash) {
         try {
             appState.options = decodeGameData(hash);
             console.log('成功載入分享的遊戲數據');
+            isSharedGame = true;
         } catch (error) {
             console.error('無法解析分享的數據:', error);
             alert('無法載入分享的遊戲數據，已載入預設選項');
@@ -65,6 +67,12 @@ function init() {
 
     renderEditor();
     attachEventListeners();
+
+    // 如果是分享的遊戲，自動開始遊戲
+    if (isSharedGame) {
+        console.log('自動開始遊戲（來自分享連結或 QR 碼）');
+        startGame();
+    }
 }
 
 // 渲染編輯器
