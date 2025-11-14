@@ -361,14 +361,11 @@ function makeChoice(winner, loser, clickedSide) {
         // 更新當前冠軍
         appState.currentChampion = winner;
 
-        // 只在第一次設置冠軍位置，之後保持不變
-        if (appState.championSide === null) {
-            appState.championSide = clickedSide;
-            console.log(`冠軍位置已固定為: ${clickedSide === 'left' ? '左側' : '右側'}`);
-        }
+        // 更新冠軍位置為用戶點擊的那一側
+        appState.championSide = clickedSide;
 
         console.log(`${winner.text} 勝出！淘汰了 ${loser.text}`);
-        console.log(`冠軍保持在 ${appState.championSide === 'left' ? '左側' : '右側'}`);
+        console.log(`下一轮冠軍將顯示在: ${clickedSide === 'left' ? '左側' : '右側'}`);
         console.log(`剩餘選項: ${appState.gameOptions.length + 1}`);
 
         cards.forEach(card => card.style.pointerEvents = 'auto');
