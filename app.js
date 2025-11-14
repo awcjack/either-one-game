@@ -21,7 +21,8 @@ let appState = {
     options: [],
     gameOptions: [], // 遊戲進行中的選項
     eliminatedOptions: [],
-    currentChampion: null // 當前保留的選項（上一輪的勝利者）
+    currentChampion: null, // 當前保留的選項（上一輪的勝利者）
+    championSide: null // 冠軍顯示的位置：'left' 或 'right'
 };
 
 // DOM 元素
@@ -251,6 +252,7 @@ function startGame() {
     appState.gameOptions = JSON.parse(JSON.stringify(appState.options));
     appState.eliminatedOptions = [];
     appState.currentChampion = null; // 重置當前冠軍
+    appState.championSide = null; // 重置冠軍位置
 
     // 切換到遊戲模式
     switchMode('game');
@@ -296,44 +298,39 @@ function showNextRound() {
     document.getElementById('remainingCount').textContent = `剩餘: ${totalRemaining}`;
     document.getElementById('eliminatedCount').textContent = `已淘汰: ${appState.eliminatedOptions.length}`;
 
-    let championData, challengerData;
-    let isChampionOnLeft = true;
+    let option1Data, option2Data;
 
     // 如果沒有當前冠軍（第一輪），隨機選擇兩個選項
     if (!appState.currentChampion) {
-        championData = appState.gameOptions[0];
-        challengerData = appState.gameOptions[1];
-        appState.currentChampion = championData; // 設置第一個為暫時冠軍
+        option1Data = appState.gameOptions[0];
+        option2Data = appState.gameOptions[1];
         appState.gameOptions.splice(0, 2); // 移除這兩個選項
     } else {
-        // 有冠軍時，冠軍 vs 新的挑戰者
-        championData = appState.currentChampion;
-        challengerData = appState.gameOptions[0];
+        // 有冠軍時，冠軍 vs 新的挑戰者，冠軍保持在同一側
+        const challengerData = appState.gameOptions[0];
         appState.gameOptions.splice(0, 1); // 移除挑戰者
 
-        // 隨機決定冠軍在左邊還是右邊
-        isChampionOnLeft = Math.random() < 0.5;
+        if (appState.championSide === 'left') {
+            // 冠軍在左邊
+            option1Data = appState.currentChampion;
+            option2Data = challengerData;
+        } else {
+            // 冠軍在右邊
+            option1Data = challengerData;
+            option2Data = appState.currentChampion;
+        }
     }
 
     // 顯示選項
     const choice1 = document.getElementById('choice1');
     const choice2 = document.getElementById('choice2');
 
-    if (isChampionOnLeft) {
-        updateChoiceCard(choice1, championData);
-        updateChoiceCard(choice2, challengerData);
+    updateChoiceCard(choice1, option1Data);
+    updateChoiceCard(choice2, option2Data);
 
-        // 設置點擊事件
-        choice1.onclick = () => makeChoice(championData, challengerData, true);
-        choice2.onclick = () => makeChoice(challengerData, championData, false);
-    } else {
-        updateChoiceCard(choice1, challengerData);
-        updateChoiceCard(choice2, championData);
-
-        // 設置點擊事件
-        choice1.onclick = () => makeChoice(challengerData, championData, false);
-        choice2.onclick = () => makeChoice(championData, challengerData, true);
-    }
+    // 設置點擊事件
+    choice1.onclick = () => makeChoice(option1Data, option2Data, 'left');
+    choice2.onclick = () => makeChoice(option2Data, option1Data, 'right');
 }
 
 // 更新選擇卡片
@@ -352,7 +349,7 @@ function updateChoiceCard(card, data) {
 }
 
 // 進行選擇
-function makeChoice(winner, loser, isChampionWinner) {
+function makeChoice(winner, loser, clickedSide) {
     // 添加動畫效果
     const cards = document.querySelectorAll('.choice-card');
     cards.forEach(card => card.style.pointerEvents = 'none');
@@ -363,6 +360,11 @@ function makeChoice(winner, loser, isChampionWinner) {
 
         // 更新當前冠軍
         appState.currentChampion = winner;
+
+        // 更新冠軍的位置為用戶點擊的那一側
+        appState.championSide = clickedSide;
+        console.log(`冠軍現在位於: ${clickedSide === 'left' ? '左側' : '右側'}`);
+
 
         console.log(`${winner.text} 勝出！淘汰了 ${loser.text}`);
         console.log(`剩餘選項: ${appState.gameOptions.length + 1}`);
