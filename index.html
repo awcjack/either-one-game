@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二選一淘汰賽遊戲</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 編輯模式 -->
+    <div id="editorMode" class="mode">
+        <div class="container">
+            <h1>📝 設計你的二選一遊戲</h1>
+            <p class="subtitle">編輯選項的文字和圖片，然後開始遊戲</p>
+
+            <div id="optionsList" class="options-list">
+                <!-- 選項會動態生成 -->
+            </div>
+
+            <div class="button-group">
+                <button id="addOptionBtn" class="btn btn-secondary">+ 新增選項</button>
+                <button id="startGameBtn" class="btn btn-primary">開始遊戲</button>
+                <button id="shareGameBtn" class="btn btn-accent">分享遊戲</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲模式 -->
+    <div id="gameMode" class="mode hidden">
+        <div class="container">
+            <div class="game-header">
+                <h2>🎮 二選一淘汰賽</h2>
+                <div class="game-stats">
+                    <span id="remainingCount">剩餘: 0</span>
+                    <span id="eliminatedCount">已淘汰: 0</span>
+                </div>
+            </div>
+
+            <div id="gameArea" class="game-area">
+                <div class="choice-container">
+                    <div id="choice1" class="choice-card">
+                        <div class="choice-image-container">
+                            <img src="" alt="" class="choice-image">
+                        </div>
+                        <h3 class="choice-text"></h3>
+                    </div>
+
+                    <div class="vs-divider">VS</div>
+
+                    <div id="choice2" class="choice-card">
+                        <div class="choice-image-container">
+                            <img src="" alt="" class="choice-image">
+                        </div>
+                        <h3 class="choice-text"></h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="backToEditorBtn" class="btn btn-secondary">返回編輯</button>
+                <button id="restartGameBtn" class="btn btn-primary">重新開始</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果模式 -->
+    <div id="resultMode" class="mode hidden">
+        <div class="container">
+            <h1>🏆 最終結果</h1>
+            <p class="subtitle">恭喜！最後勝出的是...</p>
+
+            <div class="result-card">
+                <div class="result-image-container">
+                    <img id="resultImage" src="" alt="" class="result-image">
+                </div>
+                <h2 id="resultText" class="result-text"></h2>
+            </div>
+
+            <div class="button-group">
+                <button id="playAgainBtn" class="btn btn-primary">再玩一次</button>
+                <button id="backToEditorFromResultBtn" class="btn btn-secondary">返回編輯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享對話框 -->
+    <div id="shareModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>分享遊戲</h2>
+            <p>複製下方連結分享給朋友：</p>
+            <div class="share-link-container">
+                <input type="text" id="shareLink" readonly>
+                <button id="copyLinkBtn" class="btn btn-accent">複製</button>
+            </div>
+            <button id="closeModalBtn" class="btn btn-secondary">關閉</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
