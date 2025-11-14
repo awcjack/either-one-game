@@ -1,18 +1,18 @@
-// 預設選項
+// 預設選項（使用圖片 URL 而非 base64，大幅減少分享連結長度）
 const DEFAULT_OPTIONS = [
-    { text: '溫婉', image: null },
-    { text: '威嚴', image: null },
-    { text: '重視權力', image: null },
-    { text: '冷靜', image: null },
-    { text: '帥氣', image: null },
-    { text: '手段了得', image: null },
-    { text: '敏捷', image: null },
-    { text: '意氣風發', image: null },
-    { text: '果斷', image: null },
-    { text: '忠誠', image: null },
-    { text: '可愛', image: null },
-    { text: '強壯', image: null },
-    { text: '聰明', image: null }
+    { text: '溫婉', image: '溫婉.jpeg' },
+    { text: '威嚴', image: '威嚴.jpeg' },
+    { text: '重視權力', image: '重視權力.jpeg' },
+    { text: '冷靜', image: '冷靜.jpeg' },
+    { text: '帥氣', image: '帥氣.jpeg' },
+    { text: '手段了得', image: '手段了得.jpeg' },
+    { text: '敏捷', image: '敏捷.jpeg' },
+    { text: '意氣風發', image: '意氣風發.jpeg' },
+    { text: '果斷', image: '果斷.jpeg' },
+    { text: '忠誠', image: '忠誠.jpeg' },
+    { text: '可愛', image: '可愛.jpeg' },
+    { text: '強壯', image: '強壯.jpeg' },
+    { text: '聰明', image: '聰明.jpeg' }
 ];
 
 // 應用狀態
