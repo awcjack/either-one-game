@@ -13,12 +13,34 @@
             <h1>📝 設計你的二選一遊戲</h1>
             <p class="subtitle">編輯選項的文字和圖片，然後開始遊戲</p>
 
+            <!-- 圖片使用建議 -->
+            <div class="image-tips">
+                <details>
+                    <summary>💡 圖片使用建議（點擊展開）</summary>
+                    <ul>
+                        <li><strong>推薦尺寸：</strong>500x500 至 1000x1000 像素（正方形最佳）</li>
+                        <li><strong>檔案大小：</strong>每張圖片建議小於 1MB</li>
+                        <li><strong>格式：</strong>JPG、PNG、WebP 都支援（系統會自動壓縮為 JPG）</li>
+                        <li><strong>分享建議：</strong>
+                            <ul>
+                                <li>少量圖片（1-5張）：可選「包含圖片」分享</li>
+                                <li>大量圖片（6+張）：建議選「僅文字」分享</li>
+                            </ul>
+                        </li>
+                        <li><strong>快速上傳：</strong>支援拖放圖片到預覽區域</li>
+                        <li><strong>本地保存：</strong>點擊「保存草稿」可保存進度</li>
+                    </ul>
+                </details>
+            </div>
+
             <div id="optionsList" class="options-list">
                 <!-- 選項會動態生成 -->
             </div>
 
             <div class="button-group">
                 <button id="addOptionBtn" class="btn btn-secondary">+ 新增選項</button>
+                <button id="saveLocalBtn" class="btn btn-secondary">💾 保存草稿</button>
+                <button id="loadLocalBtn" class="btn btn-secondary">📂 載入草稿</button>
                 <button id="startGameBtn" class="btn btn-primary">開始遊戲</button>
                 <button id="shareGameBtn" class="btn btn-accent">分享遊戲</button>
             </div>
@@ -113,12 +135,23 @@
                 連結長度: <span id="urlLength">0</span> 字符
             </div>
 
+            <!-- QR 碼 -->
+            <div class="qr-section">
+                <button id="generateQRBtn" class="btn btn-secondary">生成 QR 碼</button>
+                <div id="qrcodeContainer" class="qrcode-container hidden">
+                    <p>掃描 QR 碼分享給手機用戶：</p>
+                    <div id="qrcode"></div>
+                </div>
+            </div>
+
             <button id="closeModalBtn" class="btn btn-secondary">關閉</button>
         </div>
     </div>
 
     <!-- LZ-String 压缩库 -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <!-- QR Code 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

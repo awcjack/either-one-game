@@ -56,6 +56,41 @@ h1 {
 }
 
 /* 編輯器模式 */
+.image-tips {
+    background: #f0f7ff;
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.image-tips details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #667eea;
+    padding: 5px;
+    user-select: none;
+}
+
+.image-tips details[open] summary {
+    margin-bottom: 10px;
+}
+
+.image-tips ul {
+    margin-left: 20px;
+    color: #555;
+    line-height: 1.8;
+}
+
+.image-tips ul ul {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.image-tips strong {
+    color: #667eea;
+}
+
 .options-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -438,6 +473,37 @@ h1 {
     border: 2px solid #e9ecef;
     border-radius: 8px;
     font-size: 0.9em;
+}
+
+.qr-section {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.qrcode-container {
+    margin-top: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.qrcode-container p {
+    margin-bottom: 15px;
+    color: #666;
+}
+
+#qrcode {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+#qrcode img {
+    display: block;
 }
 
 /* 響應式設計 */
