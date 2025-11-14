@@ -111,8 +111,8 @@ function renderEditor() {
     });
 }
 
-// 壓縮圖片
-function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
+// 壓縮圖片（更激進的壓縮以縮短 URL）
+function compressImage(file, maxWidth = 500, maxHeight = 500, quality = 0.5) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -122,7 +122,7 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
                 let width = img.width;
                 let height = img.height;
 
-                // 計算縮放比例
+                // 計算縮放比例（保持比例）
                 if (width > height) {
                     if (width > maxWidth) {
                         height = height * (maxWidth / width);
@@ -139,10 +139,18 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
                 canvas.height = height;
 
                 const ctx = canvas.getContext('2d');
+                // 使用更好的圖像品質設定
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // 轉換為 base64（使用較低的品質以減小大小）
+                // 轉換為 JPEG 格式，使用較低的品質以大幅減小大小
                 const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+
+                // 檢查壓縮後的大小
+                const sizeKB = Math.round((compressedDataUrl.length * 0.75) / 1024);
+                console.log(`圖片壓縮後大小: ${sizeKB}KB`);
+
                 resolve(compressedDataUrl);
             };
             img.onerror = reject;
@@ -346,6 +354,43 @@ function decodeGameData(encodedData) {
     }
 }
 
+// 生成分享連結
+function generateShareLink() {
+    const shareType = document.querySelector('input[name="shareType"]:checked').value;
+    let dataToShare = appState.options;
+
+    // 如果選擇僅文字模式，移除圖片
+    if (shareType === 'text') {
+        dataToShare = appState.options.map(opt => ({
+            text: opt.text,
+            image: null
+        }));
+    }
+
+    const encodedData = encodeGameData(dataToShare);
+    const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
+
+    // 更新連結和長度顯示
+    shareLink.value = url;
+    document.getElementById('urlLength').textContent = url.length;
+
+    // 檢查 URL 長度並顯示警告
+    const urlWarning = document.getElementById('urlWarning');
+    const MAX_SAFE_URL_LENGTH = 2000; // 大多數瀏覽器的安全限制
+
+    if (url.length > MAX_SAFE_URL_LENGTH && shareType === 'full') {
+        urlWarning.classList.remove('hidden');
+    } else {
+        urlWarning.classList.add('hidden');
+    }
+
+    console.log('分享模式:', shareType === 'full' ? '完整（圖片+文字）' : '僅文字');
+    console.log('分享連結長度:', url.length);
+    console.log('壓縮後數據大小:', encodedData.length, '字符');
+
+    return url;
+}
+
 // 分享遊戲
 function shareGame() {
     if (appState.options.length < 2) {
@@ -354,14 +399,8 @@ function shareGame() {
     }
 
     try {
-        const encodedData = encodeGameData(appState.options);
-        // 使用 hash (#) 而不是 query parameter (?)
-        const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
-
-        shareLink.value = url;
+        generateShareLink();
         shareModal.classList.remove('hidden');
-
-        console.log('分享連結長度:', url.length);
     } catch (error) {
         console.error('生成分享連結時出錯:', error);
         alert('生成分享連結失敗，請稍後再試');
@@ -396,6 +435,16 @@ function attachEventListeners() {
     backToEditorFromResultBtn.addEventListener('click', () => switchMode('editor'));
     copyLinkBtn.addEventListener('click', copyLink);
     closeModalBtn.addEventListener('click', closeModal);
+
+    // 監聽分享類型切換
+    document.querySelectorAll('input[name="shareType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            // 當切換分享類型時，重新生成連結
+            if (!shareModal.classList.contains('hidden')) {
+                generateShareLink();
+            }
+        });
+    });
 
     // 點擊模態框背景關閉
     shareModal.addEventListener('click', (e) => {

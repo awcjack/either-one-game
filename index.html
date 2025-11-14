@@ -87,11 +87,32 @@
     <div id="shareModal" class="modal hidden">
         <div class="modal-content">
             <h2>分享遊戲</h2>
+
+            <div class="share-options">
+                <label class="share-option">
+                    <input type="radio" name="shareType" value="full" checked>
+                    <span>包含圖片和文字</span>
+                </label>
+                <label class="share-option">
+                    <input type="radio" name="shareType" value="text">
+                    <span>僅文字（連結更短）</span>
+                </label>
+            </div>
+
+            <div id="urlWarning" class="url-warning hidden">
+                ⚠️ 連結較長，部分平台可能無法支援。建議使用「僅文字」選項。
+            </div>
+
             <p>複製下方連結分享給朋友：</p>
             <div class="share-link-container">
                 <input type="text" id="shareLink" readonly>
                 <button id="copyLinkBtn" class="btn btn-accent">複製</button>
             </div>
+
+            <div class="url-length-info">
+                連結長度: <span id="urlLength">0</span> 字符
+            </div>
+
             <button id="closeModalBtn" class="btn btn-secondary">關閉</button>
         </div>
     </div>

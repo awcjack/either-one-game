@@ -360,18 +360,76 @@ h1 {
 
 .modal-content h2 {
     color: #667eea;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .modal-content p {
     color: #666;
+    margin-bottom: 15px;
+}
+
+.share-options {
+    display: flex;
+    gap: 15px;
     margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.share-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.share-option:hover {
+    background: white;
+    border-color: #667eea;
+}
+
+.share-option input[type="radio"] {
+    cursor: pointer;
+}
+
+.share-option span {
+    font-weight: 500;
+    color: #333;
+}
+
+.url-warning {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    color: #856404;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.url-length-info {
+    text-align: center;
+    color: #666;
+    font-size: 0.85em;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.url-length-info span {
+    font-weight: bold;
+    color: #667eea;
 }
 
 .share-link-container {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 #shareLink {
