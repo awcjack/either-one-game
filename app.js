@@ -42,15 +42,16 @@ const closeModalBtn = document.getElementById('closeModalBtn');
 
 // 初始化
 function init() {
-    // 檢查 URL 是否有分享的數據
-    const urlParams = new URLSearchParams(window.location.search);
-    const sharedData = urlParams.get('data');
+    // 檢查 URL hash 是否有分享的數據
+    const hash = window.location.hash.substring(1); // 移除 # 符號
 
-    if (sharedData) {
+    if (hash) {
         try {
-            appState.options = decodeGameData(sharedData);
+            appState.options = decodeGameData(hash);
+            console.log('成功載入分享的遊戲數據');
         } catch (error) {
             console.error('無法解析分享的數據:', error);
+            alert('無法載入分享的遊戲數據，已載入預設選項');
             appState.options = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
         }
     } else {
@@ -110,17 +111,62 @@ function renderEditor() {
     });
 }
 
+// 壓縮圖片
+function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // 計算縮放比例
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = height * (maxWidth / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = width * (maxHeight / height);
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // 轉換為 base64（使用較低的品質以減小大小）
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                resolve(compressedDataUrl);
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 // 處理圖片上傳
-function handleImageUpload(event, index) {
+async function handleImageUpload(event, index) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        appState.options[index].image = e.target.result;
+    try {
+        // 壓縮圖片以減小 URL 大小
+        const compressedImage = await compressImage(file);
+        appState.options[index].image = compressedImage;
         renderEditor();
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('圖片處理失敗:', error);
+        alert('圖片上傳失敗，請嘗試其他圖片');
+    }
 }
 
 // 移除選項
@@ -272,16 +318,32 @@ function getRandomIndices(max, count) {
     return indices;
 }
 
-// 編碼遊戲數據
+// 編碼遊戲數據（使用 LZ-String 壓縮）
 function encodeGameData(options) {
-    const jsonString = JSON.stringify(options);
-    return btoa(encodeURIComponent(jsonString));
+    try {
+        const jsonString = JSON.stringify(options);
+        // 使用 LZ-String 壓縮並編碼為 Base64
+        const compressed = LZString.compressToEncodedURIComponent(jsonString);
+        return compressed;
+    } catch (error) {
+        console.error('編碼數據時出錯:', error);
+        throw error;
+    }
 }
 
-// 解碼遊戲數據
+// 解碼遊戲數據（使用 LZ-String 解壓縮）
 function decodeGameData(encodedData) {
-    const jsonString = decodeURIComponent(atob(encodedData));
-    return JSON.parse(jsonString);
+    try {
+        // 使用 LZ-String 解壓縮
+        const decompressed = LZString.decompressFromEncodedURIComponent(encodedData);
+        if (!decompressed) {
+            throw new Error('解壓縮失敗');
+        }
+        return JSON.parse(decompressed);
+    } catch (error) {
+        console.error('解碼數據時出錯:', error);
+        throw error;
+    }
 }
 
 // 分享遊戲
@@ -291,11 +353,19 @@ function shareGame() {
         return;
     }
 
-    const encodedData = encodeGameData(appState.options);
-    const url = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
+    try {
+        const encodedData = encodeGameData(appState.options);
+        // 使用 hash (#) 而不是 query parameter (?)
+        const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
 
-    shareLink.value = url;
-    shareModal.classList.remove('hidden');
+        shareLink.value = url;
+        shareModal.classList.remove('hidden');
+
+        console.log('分享連結長度:', url.length);
+    } catch (error) {
+        console.error('生成分享連結時出錯:', error);
+        alert('生成分享連結失敗，請稍後再試');
+    }
 }
 
 // 複製連結
